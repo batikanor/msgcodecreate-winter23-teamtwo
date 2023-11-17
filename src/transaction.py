@@ -10,7 +10,7 @@ class Transaction:
     comment: str
     db_connection: sqlite3
 
-    def __init__(self, money_amount_: float, categorie_: str, comment_: str = "", date_of_transaction: datetime = N) -> None:
+    def __init__(self, money_amount_: float, categorie_: str, comment_: str = "", date_of_transaction: datetime = None) -> None:
         self.money_amount = money_amount_
         self.categorie = categorie_
         self.comment = comment_
