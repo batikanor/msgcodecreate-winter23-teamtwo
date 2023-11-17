@@ -9,3 +9,4 @@ CORS(app)
 @app.route('/', methods=['GET'])
 def get_hello():
     return jsonify({'status': 'developing'})
+
