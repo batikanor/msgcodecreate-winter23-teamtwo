@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
+// TODO: Code is quite readable thus there aren't comments in this file. However, we could check what kind of commenting guidelines exist in react/flask etc and then do a final code cleaning run in our repo.
 const Registration = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
