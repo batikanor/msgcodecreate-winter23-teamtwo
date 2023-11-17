@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react'
 import reactLogo from './assets/msg.svg'
 import viteLogo from './assets/msg.svg'
 import axios from 'axios';
+import Registration from './Registration';
+import Login from './Login';
+import UsersList from './UsersList';
 import './App.css'
 
 function App() {
@@ -23,6 +26,11 @@ function App() {
 
   return (
     <>
+      <div>
+        <Registration />
+        <Login />
+        <UsersList />
+      </div>
       <div>
         <a href="https://vitejs.dev" target="_blank">
           <img src={viteLogo} className="logo" alt="Vite logo" />
