@@ -1,4 +1,3 @@
-
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
@@ -10,4 +9,3 @@ CORS(app)
 @app.route('/', methods=['GET'])
 def get_hello():
     return jsonify({'status': 'developing'})
-s
