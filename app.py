@@ -4,7 +4,7 @@ from flask_login import LoginManager, login_user
 from flask_jwt_extended import JWTManager, create_access_token, get_jwt_identity, jwt_required
 from dotenv import load_dotenv
 import os
-
+from plot import plot_pie_chart_for_budgetbook_by_category
 
 load_dotenv()
 
@@ -88,59 +88,83 @@ def get_users():
     return jsonify(users_data)
 
 @app.route('/transactions', methods=['GET'])
+@jwt_required()
 def get_transactions_from_budgetbook_id():
+    user_id = get_jwt_identity()
     data = request.get_json()
     budgetbook_id = data["budgetbook_id"]
-
+    
+    if not check_admin_privileges(budgetbook_id, user_id):
+        return jsonify({'message': 'Invalid credentials'}), 401
+    
     budgetbook = get_element_instance_from_id(budgetbook_id, Budgetbook)
 
     return jsonify([transaction.get_dict_of_transaction() for transaction in budgetbook.transactions])
 
 @app.route('/transactions', methods=['POST'])
-def add_transactions_to_budgetbook():
-    
-    #data = request.get_json()
-    data = {"budgetbook_id":1,
-            
-            'category': "bill",
-            'amount' : -210,
-            'comment': "netflix",
-            'account_id' : 1,
-            'username': "some user name"}
+#@jwt_required()
+def add_transaction_to_budgetbook_and_budgetplan(data=None):
+    #current_user_id = get_jwt_identity()
+    current_user_id = 1#mock
+    if data is None:
+        data = request.get_json()
 
     try:
+        if not check_admin_privileges(data["budgetbook_id"], current_user_id):
+            return jsonify({'message': 'Access Denied'}), 401
+        
         transaction = Transaction(category=data["category"], comment=data["comment"],
                               amount =data["amount"],
                               budgetbook = get_element_instance_from_id(data["budgetbook_id"], Budgetbook),
-                              account = get_element_instance_from_id(data["account_id"], Account) )
+                              account = get_element_instance_from_id(data["account_id"], Account))
         db.session.add(transaction)
         db.session.commit()
-        update_budget_plans(data["budgetbook_id"], data["amount"], data["category"])
+        updated_budget_plan_id = update_budget_plans(data["budgetbook_id"],
+                                                  data["amount"], data["category"])
+        print(data["amount"])
+        if updated_budget_plan_id:
+            return jsonify({'budget_plan_id': updated_budget_plan_id}), 201
+        else:
+            return 201
+            
     except ValueError:
         return jsonify({'message': "no budgetbook or account found"}), 400
-    return 201
 
 @app.route('/budgetplans', methods=['GET'])
+@jwt_required()
 def get_budgetplans_from_budgetbook_id():
+    user_id = get_jwt_identity()
+    user_id = 1 #mock
     data = request.get_json()
     budgetbook_id = data["budgetbook_id"]
 
+    if not check_admin_privileges(budgetbook_id, user_id):
+        return jsonify({'message': 'Access Denied'}), 401
+
     budgetbook = get_element_instance_from_id(budgetbook_id, Budgetbook)
 
-    return jsonify([budgetbook.get_dict_of_budgetplan() for budgetplan in budgetbook.budgetplans])
+    return jsonify([budgetplan.get_dict_of_budgetplan() for budgetplan in budgetbook.budgetplans])
+
+def check_admin_privileges(budgetbook_id, user_id):
+      
+    budgetbook = get_element_instance_from_id(budgetbook_id, Budgetbook)
+    user = get_element_instance_from_id(user_id, User)
+    if user_id != budgetbook.user_id and user.privilege != "admin":
+        return False
+    else:
+        return True
 
 @app.route('/budgetplans', methods=['POST'])
+@jwt_required()
 def add_budgetplan_to_budgetbook():
-
+    user_id = get_jwt_identity()
     data = request.get_json()
-    #data = {'category': "gaming",
-    #        'budget': 100.00,
-    #        'amount_already_spent': 0,
-    #        'budgetbook_id': 1}
+
+    if not check_admin_privileges(data['budgetbook_id'], user_id):
+        return jsonify({'message': 'Access Denied'}), 401
     if len(db.session.query(Budgetplan).filter(Budgetplan.budgetbook_id==data['budgetbook_id']).\
            filter(Budgetplan.category==data['category']).all()) != 0:
         return jsonify({'message': f"There already exists a budgetplan for category {data['category']}"}), 400
-
     try:
         budgetplan = Budgetplan(category=data["category"],
                                 budget=data["budget"],
@@ -153,22 +177,20 @@ def add_budgetplan_to_budgetbook():
         return jsonify({'message': "no budgetbook"}), 400
     return 201
 
-
 def update_budget_plans(budgetbook_id, amount, category ):
-    if amount < 0.01:
-        return
+    if amount > -0.01:
+        return False
+    
     budget_plans = db.session.query(Budgetplan).filter(Budgetplan.budgetbook_id==budgetbook_id).\
            filter(Budgetplan.category==category).all()
     
     if len(budget_plans) == 0: 
-        return
+        return False
     
     budget_plan = budget_plans[0]
-
-
-
-    
-
+    budget_plan.amount_already_spent += abs(amount)
+    db.session.commit()
+    return budget_plan.id
 
 def get_element_instance_from_id(id, Type):#this gives an error if more than one elements is in the database
     element = db.session.query(Type).filter(Type.id==id).all()
@@ -180,16 +202,35 @@ def get_element_instance_from_id(id, Type):#this gives an error if more than one
         element = element[0]
     return element
 
-@jwt_required
-@app.route('/budgetbooks', methods=['GET']) 
+@app.route('/budgetbooks', methods=['GET'])
+@jwt_required()
 def get_budgetbook_ids_from_user_id():
-    
     user_id = get_jwt_identity()
+    user_id = 0
+    user = get_element_instance_from_id(user_id, User)
 
-    budget_books = db.session.query(Budgetbook).filter(Budgetbook.user_id==user_id).all()
-
+    if user.privilege =="admin":
+        budget_books = db.session.query(Budgetbook).all()
+    else:
+        budget_books = db.session.query(Budgetbook).filter(Budgetbook.user_id==user_id).all()
 
     return jsonify([budget_book.get_dict_of_budgetbooks() for budget_book in budget_books])
+
+@app.route('/accounts', methods=['GET'])
+@jwt_required()
+def get_accounts_from_user_id():
+    user_id = get_jwt_identity()
+    user = get_element_instance_from_id(user_id, User)
+    accounts = user.accounts
+    return jsonify({"account_id": accounts})
+
+@app.route('/plot', methods=['GET']) 
+@jwt_required()
+def get_plot_of_expenses_per_category_for_budgetbook():
+    user_id = get_jwt_identity()
+    data = request.get_json()
+    budgetbook_id = data['budgetbook_id']
+    return plot_pie_chart_for_budgetbook_by_category(budgetbook_id, user_id), 201
 
 
 @app.route('/test', methods=['GET'])
@@ -199,7 +240,7 @@ def test_function():
     budgetbook = Budgetbook(name="main budget book", user=user)
     transaction = Transaction(category="bill", comment="netflix", amount = -100.123,
                               budgetbook =budgetbook, account = account )
-    budgetplan = Budgetplan(category="food", budgetbook=budgetbook)
+    budgetplan = Budgetplan(category="main plan", budget=500 , budgetbook=budgetbook)
 
     db.session.add(user)
     db.session.add(account)
@@ -208,10 +249,15 @@ def test_function():
     db.session.add(budgetplan)
     db.session.commit()
 
+
+    amounts = [-123, -34,-231,-6,-2,-5]
+    categories = ["bill", "entertainment","bill", "transport","bill", "food"]
     # test function here:
     # ------------:------------:------------:
-
-    code = add_transactions_to_budgetbook()
+    ts = [{"amount":amount, "category":category, "budgetbook_id":budgetbook.id, "comment":"no_comment", "account_id":account.id} for amount, category in zip(amounts, categories)]
+    print(len(ts))
+    [ add_transaction_to_budgetbook_and_budgetplan(t) for t in ts ]
+    html_plot = plot_pie_chart_for_budgetbook_by_category(budgetbook.id, user.id)
 
     #:------------:------------:------------:------------:
     db.session.delete(user)
@@ -221,7 +267,7 @@ def test_function():
     db.session.delete(budgetplan)
 
     db.session.commit()
-    return str(code)
+    return html_plot
 
 
 # for now, set up dataset everytime the app starts

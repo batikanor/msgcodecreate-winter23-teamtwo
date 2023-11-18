@@ -21,8 +21,10 @@ twilio==8.10.2
 urllib3==2.1.0
 Werkzeug==3.0.1
 yarl==1.9.2
+plotly
 Flask-SQLAlchemy
 Flask-Bcrypt
 flask-login
 Flask-JWT-Extended
 python-dotenv
+pandas
