@@ -42,6 +42,12 @@ class Account(db.Model):
 
     transactions = db.relationship("Transaction", back_populates="account")
 
+    def get_dict_of_account(self) :
+        account_data = {'id': self.id,
+                            'name': self.name,
+                            'amount' : self.amount}
+        return account_data
+
 class Budgetbook(db.Model):
     __tablename__ = 'budgetbook'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -97,7 +103,7 @@ class Budgetplan(db.Model):
 
     category = db.Column(db.String, unique=True, default="no_name")
     budget = db.Column(db.Float)
-    amount_already_spent = db.Column(db.Float)
+    amount_already_spent = db.Column(db.Float, default=0.00)
 
     budgetbook_id = db.Column(db.Integer, db.ForeignKey('budgetbook.id'))
     budgetbook = db.relationship("Budgetbook")

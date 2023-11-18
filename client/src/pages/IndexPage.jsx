@@ -9,6 +9,7 @@ function IndexPage() {
     const [isDataLoaded, setIsDataLoaded] = useState(false); 
     const navigate = useNavigate();
     const [budgetBookName, setBudgetBookName] = useState(''); 
+    const [htmlContent, setHtmlContent] = useState('');
 
     const createMockData = async () => {
         const jwt_token = localStorage.getItem('userToken');
@@ -19,7 +20,10 @@ function IndexPage() {
               'Authorization': `Bearer ${jwt_token}` 
             },
           });
-        console.log('response:', response)
+        // const htmlcontent = await response?.json()?.html
+        // console.log(htmlcontent)
+        // setHtmlContent(htmlcontent) 
+        console.log('response:', await response)
         setIsDataLoaded(true); // Update the state when data is loaded
     }
 
@@ -45,8 +49,10 @@ function IndexPage() {
   
     return (
         <div>
+            {/* <div>
+              <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
+            </div> */}
             <button onClick={handleLogout}>Logout</button>
-
             
             <p>Thank you for logging in.</p>
             <p>Please find your current budget books below.</p>
