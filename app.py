@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from flask_login import LoginManager, login_user
-from flask_jwt_extended import JWTManager, create_access_token
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from dotenv import load_dotenv
 import os
 
@@ -117,30 +117,6 @@ def add_transactions():
 
     return jsonify([transaction.get_dict_of_transaction() for transaction in budget_book.transactions])
 
-# @app.route('/transactions', methods=['GET'])
-# def add_and_print_transactions():
-#     user= User(username="main user")
-
-#     account = Account(name="main ccount", user_id=user.id)
-#     budget_book = Budgetbook(user_id = user.id, name="main budget book")
-#     transaction = Transaction(categorie="Bill", amount=-200.10, comment="electrecity",
-#                               Account=account.id,
-#                               budgetbook_id = budget_book.id)
-    
-    
-#     account.transactions.append(transaction)
-
-
-#     db.session.add(user)
-#     db.session.add(account)
-#     db.session.add(budget_book)
-#     db.session.add(transaction)
-
-#     db.session.commit()
-
-#     transactions = Transaction.query.all()
-#     data = [{'transaction': transaction.id}  for t in transactions]
-#     jsonify(data)
 
 @app.route('/test', methods=['GET'])
 def test_function():
@@ -171,7 +147,40 @@ def test_function():
 
 
     db.session.commit()
-    return jsonify([transaction.get_json_of_transaction() for transaction in budget_book[0].transactions])
+    return jsonify("completed")
+    # return jsonify([transaction.get_json_of_transaction() for transaction in budgetbook[0].transactions])
+@app.route('/blabla', methods=['POST'])
+@jwt_required()
+def blabla():
+    uid = get_jwt_identity()
+    return jsonify(uid)
+
+@app.route('/mock', methods=['GET'])
+@jwt_required()
+def mock():
+    uid = get_jwt_identity()
+    user = User.query.filter_by(id=uid).first()
+    account = Account(name="main ccount", user=user)
+    budgetbook = Budgetbook(name="main budget book", user=user)
+    transaction = Transaction(category="bill", comment="netflix", amount = -100.123,
+                              budgetbook =budgetbook, account = account )
+    budgetplan = Budgetplan(name="main budget", budgetbook=budgetbook)
+
+
+    try:
+        db.session.add(account)
+        db.session.add(budgetbook)
+        db.session.add(transaction)
+        db.session.add(budgetplan)
+        db.session.commit()
+        print(f"Mock data creation completed.")
+    except Exception as e:
+        print(e)
+
+
+
+    db.session.commit()
+    return jsonify(uid)
 
 
 @app.route('/account', methods=['GET'])
@@ -214,6 +223,12 @@ def add_and_print_transactions():
 
     return jsonify(data)
 
+@app.route('/budgetbooks', methods=['GET']) # , endpoint='/budgetbooks')
+@jwt_required()
+def get_budgetbook_ids_from_user_id():
+    user_id = get_jwt_identity()
+    budget_books = db.session.query(Budgetbook).filter(Budgetbook.user_id==user_id).all()
+    return jsonify([budget_book.get_dict_of_budgetbooks() for budget_book in budget_books])
 
 
 
