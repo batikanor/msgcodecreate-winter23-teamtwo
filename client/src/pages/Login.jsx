@@ -1,12 +1,25 @@
-import React, { useState } from "react";
+import React, { useState, useEffect  } from "react";
 import axios from "axios";
 import {Link} from "react-router-dom"
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from './AuthContext';
 
 const Login = ({ onLoginSuccess }) => {
     // declare state variables
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
+    const { isAuthenticated, setIsAuthenticated } = useAuth();
+
+    const navigate = useNavigate();
+
+
+    useEffect(() => {
+      console.log('check inside login: isAuthenticated: ', isAuthenticated)
+      if (isAuthenticated) {
+        navigate('/start');
+      }
+    }, [isAuthenticated, history]);
 
 
     // login form submit handler

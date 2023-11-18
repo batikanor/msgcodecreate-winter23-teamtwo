@@ -24,3 +24,5 @@ yarl==1.9.2
 Flask-SQLAlchemy
 Flask-Bcrypt
 flask-login
+Flask-JWT-Extended
+python-dotenv

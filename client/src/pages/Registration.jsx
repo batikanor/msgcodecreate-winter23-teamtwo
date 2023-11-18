@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import {Link} from 'react-router-dom'
+import { useNavigate } from 'react-router-dom';
 
 // TODO: Code is quite readable thus there aren't comments in this file. However, we could check what kind of commenting guidelines exist in react/flask etc and then do a final code cleaning run in our repo.
 const Registration = () => {
@@ -8,11 +9,15 @@ const Registration = () => {
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
 
+    const navigate = useNavigate();
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
             const response = await axios.post('http://127.0.0.1:5000/register', { username, password });
             setMessage(response.data.message);
+            navigate('/');
+
         } catch (error) {
             setMessage(error.response ? error.response.data.message : 'Failed to connect to the server');
         }
