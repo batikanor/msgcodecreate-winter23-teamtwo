@@ -87,8 +87,8 @@ def get_users():
     users_data = [{'id': user.id, 'username': user.username, 'password': user.password} for user in users]
     return jsonify(users_data)
 
+@jwt_required
 @app.route('/transactions', methods=['GET'])
-@jwt_required    
 def get_transactions_from_budgetbook_id():
 
     #data = request.get_json()
@@ -145,7 +145,7 @@ def test_function():
     budgetbook = Budgetbook(name="main budget book", user=user)
     transaction = Transaction(category="bill", comment="netflix", amount = -100.123,
                               budgetbook =budgetbook, account = account )
-    budgetplan = Budgetplan(name="main budget", budgetbook=budgetbook)
+    budgetplan = Budgetplan(category="food", budgetbook=budgetbook)
     db.session.add(user)
     db.session.add(account)
     db.session.add(budgetbook)
@@ -156,7 +156,7 @@ def test_function():
     # test function here:
     # ------------:------------:------------:
 
-    add_transactions_to_budgetbook()
+    j = get_budgetbook_ids_from_user_id()
 
     #:------------:------------:------------:------------:
     db.session.delete(user)
@@ -168,10 +168,10 @@ def test_function():
 
 
     db.session.commit()
-    return jsonify([transaction.get_json_of_transaction() for transaction in budget_book[0].transactions])
+    return j
 
-@app.route('/budgetbooks', methods=['GET'])
 @jwt_required
+@app.route('/budgetbooks', methods=['GET'])
 def get_budgetbook_ids_from_user_id():
     
     user_id = get_jwt_identity()
@@ -180,47 +180,6 @@ def get_budgetbook_ids_from_user_id():
 
 
     return jsonify([budget_book.get_dict_of_budgetbooks() for budget_book in budget_books])
-
-
-@app.route('/account', methods=['GET'])
-def add_and_print_transactions():
-    user= User(username="main user", privilege="normal", password="password" )
-    account = Account(name="main ccount", user=user)
-    budgetbook = Budgetbook(name="main budget book", user=user)
-    transaction = Transaction(category="bill", comment="netflix", amount = -100.123,
-                              budgetbook =budgetbook, account = account )
-    budgetplan = Budgetplan(name="main budget", budgetbook=budgetbook)
-    db.session.add(user)
-    db.session.add(account)
-    db.session.add(budgetbook)
-    db.session.add(transaction)
-    db.session.add(budgetplan)
-
-
-    db.session.commit()
-
-    accounts = Account.query.all()
-    data = [{'accountId': account.id, 'the accounts user':account.user.username}
-                 for account in accounts]
-    data.append([{'budget_book in user:': bb.name, "its user id:": bb.user_id} 
-                 for bb in user.budgetbooks][0])
-    
-    data.append([{'in the account we got a transaction with this amount:': t.amount, 
-                  "its saved in this budget book": t.budgetbook.name} 
-                  for t in account.transactions][0])
-    
-    data.append({'budget plan for this budget book is called ': budgetplan.name, 
-                  "its saved in this budget book": budgetplan.budgetbook.name})
-    
-    db.session.delete(user)
-    db.session.delete(account)
-    db.session.delete(budgetbook)
-    db.session.delete(transaction)
-    db.session.delete(budgetplan)
-
-    db.session.commit()
-
-    return jsonify(data)
 
 
 

@@ -95,7 +95,7 @@ class Transaction(db.Model):
 class Budgetplan(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     category = db.Column(db.String, unique=True, default="no_name")
-    budget = db.Column(db.String, unique=True, default="no_name")
-    rest 
+    budget = db.Column(db.Float)
+    amount_already_spent = db.Column(db.Float)
     budgetbook_id = db.Column(db.Integer, db.ForeignKey('budgetbook.id'))
     budgetbook = db.relationship("Budgetbook")
