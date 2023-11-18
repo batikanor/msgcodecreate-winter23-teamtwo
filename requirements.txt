@@ -25,3 +25,4 @@ Flask-SQLAlchemy
 Flask-Bcrypt
 flask-login
 Flask-JWT-Extended
+python-dotenv
