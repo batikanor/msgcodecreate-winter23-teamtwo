@@ -90,7 +90,7 @@ def get_users():
 @app.route('/transactions', methods=['GET'])
 def get_transactions():
     
-    #data = request.get_json()
+    # data = request.get_json()
     data = {"budgetbook_id":1}
     budgetbook_id = data["budgetbook_id"]
 
