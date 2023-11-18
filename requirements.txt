@@ -23,3 +23,5 @@ Werkzeug==3.0.1
 yarl==1.9.2
 Flask-SQLAlchemy
 Flask-Bcrypt
+flask-login
+Flask-JWT-Extended
