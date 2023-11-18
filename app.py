@@ -87,33 +87,26 @@ def get_users():
     users_data = [{'id': user.id, 'username': user.username, 'password': user.password} for user in users]
     return jsonify(users_data)
 
-@jwt_required
 @app.route('/transactions', methods=['GET'])
 def get_transactions_from_budgetbook_id():
-
-    #data = request.get_json()
-    data = {"budgetbook_id":1}
+    data = request.get_json()
     budgetbook_id = data["budgetbook_id"]
 
-    budget_book = db.session.query(Budgetbook).filter(Budgetbook.id==budgetbook_id).all()
-    if len(budget_book) > 1:
-        raise "multiple budget books returned"
-    else:
-        budget_book = budget_book[0]
+    budgetbook = get_element_instance_from_id(budgetbook_id, Budgetbook)
 
-    return jsonify([transaction.get_dict_of_transaction() for transaction in budget_book.transactions])
+    return jsonify([transaction.get_dict_of_transaction() for transaction in budgetbook.transactions])
 
 @app.route('/transactions', methods=['POST'])
 def add_transactions_to_budgetbook():
     
-    data = request.get_json()
-    # data = {"budgetbook_id":1,
+    #data = request.get_json()
+    data = {"budgetbook_id":1,
             
-    #         'category': "bill",
-    #         'amount' : -210,
-    #         'comment': "netflix",
-    #         'account_id' : 1,
-    #         'username': "some user name"}
+            'category': "bill",
+            'amount' : -210,
+            'comment': "netflix",
+            'account_id' : 1,
+            'username': "some user name"}
 
     try:
         transaction = Transaction(category=data["category"], comment=data["comment"],
@@ -121,57 +114,63 @@ def add_transactions_to_budgetbook():
                               budgetbook = get_element_instance_from_id(data["budgetbook_id"], Budgetbook),
                               account = get_element_instance_from_id(data["account_id"], Account) )
         db.session.add(transaction)
-        db.session.commit(transaction)
+        db.session.commit()
     
     except ValueError:
-        return jsonify("no budgetbook or account found"), 400
+        return jsonify({'message': "no budgetbook or account found"}), 400
+    return 201
 
-    return jsonify()
+@app.route('/budgetplans', methods=['GET'])
+def get_budgetplans_from_budgetbook_id():
+    data = request.get_json()
+    budgetbook_id = data["budgetbook_id"]
 
-def get_element_instance_from_id(id, Type):
+    budgetbook = get_element_instance_from_id(budgetbook_id, Budgetbook)
+
+    return jsonify([budgetbook.get_dict_of_budgetplan() for budgetplan in budgetbook.budgetplans])
+
+@app.route('/budgetplans', methods=['POST'])
+def add_budgetplan_to_budgetbook():
+
+    #data = request.get_json()
+    data = {'category': "gaming",
+            'budget': 100.00,
+            'amount_already_spent': 0,
+            'budgetbook_id': 1}
+    if len(db.session.query(Budgetplan).filter(Budgetplan.budgetbook_id==data['budgetbook_id']).filter(Budgetplan.category==data['category']).all()) != 0:
+        return jsonify({'message': f"There already exists a budgetplan for category {data['category']}"}), 400
+
+    try:
+        budgetplan = Budgetplan(category=data["category"],
+                                budget=data["budget"],
+                                amount_already_spent=data["amount_already_spent"],
+                                budgetbook = get_element_instance_from_id(data["budgetbook_id"], Budgetbook),)
+        db.session.add(budgetplan)
+        db.session.commit()
+    
+    except ValueError:
+        return jsonify({'message': "no budgetbook"}), 400
+    return 201
+
+@app.route('/budgetplans', methods=['GET']) 
+def get_budgetbook_ids_from_user_id():
+    
+
+
+
+
+def get_element_instance_from_id(id, Type):#this gives an error if more than one elements is in the database
     budget_book = db.session.query(Type).filter(Type.id==id).all()
     if len(budget_book) > 1:
-        raise ValueError("multiple "+ Type +" with the same id found") 
+        raise ValueError("multiple "+ str(Type) +" with the same id found") 
     elif len(budget_book) < 1:
-        raise ValueError("no " + Type + "s with the same id found") 
+        raise ValueError("no " + str(Type) + " found") 
     else:
         budget_book = budget_book[0]
     return budget_book
 
-@app.route('/test', methods=['GET'])
-def test_function():
-    user= User(username="main user", privilege="normal", password="password" )
-    account = Account(name="main ccount", user=user)
-    budgetbook = Budgetbook(name="main budget book", user=user)
-    transaction = Transaction(category="bill", comment="netflix", amount = -100.123,
-                              budgetbook =budgetbook, account = account )
-    budgetplan = Budgetplan(category="food", budgetbook=budgetbook)
-    db.session.add(user)
-    db.session.add(account)
-    db.session.add(budgetbook)
-    db.session.add(transaction)
-    db.session.add(budgetplan)
-    db.session.commit()
-
-    # test function here:
-    # ------------:------------:------------:
-
-    j = get_budgetbook_ids_from_user_id()
-
-    #:------------:------------:------------:------------:
-    db.session.delete(user)
-    db.session.delete(account)
-    db.session.delete(budgetbook)
-    db.session.delete(transaction)
-    db.session.delete(budgetplan)
-
-
-
-    db.session.commit()
-    return j
-
 @jwt_required
-@app.route('/budgetbooks', methods=['GET'])
+@app.route('/budgetbooks', methods=['GET']) 
 def get_budgetbook_ids_from_user_id():
     
     user_id = get_jwt_identity()
@@ -182,6 +181,36 @@ def get_budgetbook_ids_from_user_id():
     return jsonify([budget_book.get_dict_of_budgetbooks() for budget_book in budget_books])
 
 
+@app.route('/test', methods=['GET'])
+def test_function():
+    user = User(username="main user", privilege="normal", password="password" )
+    account = Account(name="main ccount", user=user)
+    budgetbook = Budgetbook(name="main budget book", user=user)
+    transaction = Transaction(category="bill", comment="netflix", amount = -100.123,
+                              budgetbook =budgetbook, account = account )
+    budgetplan = Budgetplan(category="food", budgetbook=budgetbook)
+
+    db.session.add(user)
+    db.session.add(account)
+    db.session.add(budgetbook)
+    db.session.add(transaction)
+    db.session.add(budgetplan)
+    db.session.commit()
+
+    # test function here:
+    # ------------:------------:------------:
+
+    code = add_transactions_to_budgetbook()
+
+    #:------------:------------:------------:------------:
+    db.session.delete(user)
+    db.session.delete(account)
+    db.session.delete(budgetbook)
+    db.session.delete(transaction)
+    db.session.delete(budgetplan)
+
+    db.session.commit()
+    return str(code)
 
 
 # for now, set up dataset everytime the app starts
