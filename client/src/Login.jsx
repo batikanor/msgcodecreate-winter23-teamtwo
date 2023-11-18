@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-const Login = () => {
+const Login = ({ onLoginSuccess }) => {
     // declare state variables
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -10,16 +10,25 @@ const Login = () => {
 
     // login form submit handler
     const handleSubmit = async (e) => {
-        e.preventDefault(); // 
+        e.preventDefault(); // prevents default form submission action from happening
+        console.log('handling login form submission')
         try {
             const response = await axios.post('http://127.0.0.1:5000/login', { username, password });
-            setMessage(response.data.message);
-            // TODO: put login logic here, such as redirecting the user or storing the logged-in state
+            // TODO: Mayhaps make some of the loggings optoinal depending on verbosity of program or debug/production mode etc... 
+            console.log('response ', response);
+            console.log(response.data.access_token)
+            if (response.data.access_token) {
+                onLoginSuccess(response.data.access_token);
+            } else {
+                setMessage('Login successful, but no token received');
+            }
         } catch (error) {
-            setMessage(error.response ? error.response.data.message : 'Failed to get response from the server');
+            console.log("Login unsuccesful")
+            console.log(error)
+            setMessage(error.response ? error.response.data.message : 'Login Failed: Failed to get response from the server!');
         }
     };
-    // return jsx for this componetn
+    // return jsx for this component
     return (
         <div>
             <h2>Login</h2>
