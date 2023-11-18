@@ -1,12 +1,14 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
+from flask_login import UserMixin
 
 # SQLAlchemy is our ORM (Object-Relational Mapping) tool.
 db = SQLAlchemy()
 
 bcrypt = Bcrypt()
 
-class User(db.Model):
+# UserMixin has some preexisting implementations (for methods and attr) related to flask-login such as is_authenticated, is_active, is_anonymous, get_id() method
+class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(120), nullable=False)
