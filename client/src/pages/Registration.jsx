@@ -53,7 +53,7 @@ const Registration = () => {
           Register
         </button>
       </form>
-      {message && <p>{message}</p>}
+      {message && <p className="text-red-500 text-lg font-extrabold flex items-center justify-center">{message}</p>}
     </div>
   );
 };

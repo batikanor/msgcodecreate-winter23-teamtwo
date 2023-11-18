@@ -14,6 +14,8 @@ function IndexPage() {
 
   return (
     <>
+  <h1 className="text-4xl font-bold text-center">Budget Plan</h1>
+
         <button className="bg-red-500 p-1 text-white rounded" onClick={handleLogout}>Logout</button>
       <BudgetBookTable />
     </>

@@ -68,7 +68,7 @@ const BudgetBookTable = () => {
         className="bg-blue-500 text-white px-4 py-2 mb-4 rounded"
         onClick={addRow}
       >
-        Add Row
+        Add Transaction
       </button>
       <table className="min-w-full bg-white border border-gray-300">
         <thead>
