@@ -115,7 +115,7 @@ def add_transactions_to_budgetbook():
                               account = get_element_instance_from_id(data["account_id"], Account) )
         db.session.add(transaction)
         db.session.commit()
-    
+        update_budget_plans(data["budgetbook_id"], data["amount"], data["category"])
     except ValueError:
         return jsonify({'message': "no budgetbook or account found"}), 400
     return 201
@@ -132,12 +132,13 @@ def get_budgetplans_from_budgetbook_id():
 @app.route('/budgetplans', methods=['POST'])
 def add_budgetplan_to_budgetbook():
 
-    #data = request.get_json()
-    data = {'category': "gaming",
-            'budget': 100.00,
-            'amount_already_spent': 0,
-            'budgetbook_id': 1}
-    if len(db.session.query(Budgetplan).filter(Budgetplan.budgetbook_id==data['budgetbook_id']).filter(Budgetplan.category==data['category']).all()) != 0:
+    data = request.get_json()
+    #data = {'category': "gaming",
+    #        'budget': 100.00,
+    #        'amount_already_spent': 0,
+    #        'budgetbook_id': 1}
+    if len(db.session.query(Budgetplan).filter(Budgetplan.budgetbook_id==data['budgetbook_id']).\
+           filter(Budgetplan.category==data['category']).all()) != 0:
         return jsonify({'message': f"There already exists a budgetplan for category {data['category']}"}), 400
 
     try:
@@ -152,22 +153,32 @@ def add_budgetplan_to_budgetbook():
         return jsonify({'message': "no budgetbook"}), 400
     return 201
 
-@app.route('/budgetplans', methods=['GET']) 
-def get_budgetbook_ids_from_user_id():
+
+def update_budget_plans(budgetbook_id, amount, category ):
+    if amount < 0.01:
+        return
+    budget_plans = db.session.query(Budgetplan).filter(Budgetplan.budgetbook_id==budgetbook_id).\
+           filter(Budgetplan.category==category).all()
+    
+    if len(budget_plans) == 0: 
+        return
+    
+    budget_plan = budget_plans[0]
+
+
+
     
 
 
-
-
 def get_element_instance_from_id(id, Type):#this gives an error if more than one elements is in the database
-    budget_book = db.session.query(Type).filter(Type.id==id).all()
-    if len(budget_book) > 1:
+    element = db.session.query(Type).filter(Type.id==id).all()
+    if len(element) > 1:
         raise ValueError("multiple "+ str(Type) +" with the same id found") 
-    elif len(budget_book) < 1:
+    elif len(element) < 1:
         raise ValueError("no " + str(Type) + " found") 
     else:
-        budget_book = budget_book[0]
-    return budget_book
+        element = element[0]
+    return element
 
 @jwt_required
 @app.route('/budgetbooks', methods=['GET']) 
