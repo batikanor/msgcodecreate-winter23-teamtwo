@@ -3,3 +3,4 @@ build/
 client/node_modules
 instance/
 finance_planner
+.env

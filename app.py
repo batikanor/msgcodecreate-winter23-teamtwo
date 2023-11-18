@@ -2,6 +2,8 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 from flask_login import LoginManager, login_user
 from flask_jwt_extended import JWTManager, create_access_token
+import os
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///moneymonitor.db'
@@ -10,8 +12,8 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///moneymonitor.db'
 # app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  
 
 # TODO: Get this secret key from the environment instead. Its just a further security feature for the tokens to be hard to recreate.
-app.config['SECRET_KEY'] = 'your-secret-key'  # Flask-Login needs a secret key
-app.config['JWT_SECRET_KEY'] = 'another-secret-key' 
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')  # Flask-Login needs a secret key
+app.config['JWT_SECRET_KEY'] =  os.getenv('JWT_SECRET_KEY')
 
 # Following line enables connections from the frontend.
 CORS(app)
