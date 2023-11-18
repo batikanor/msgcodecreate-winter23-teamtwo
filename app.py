@@ -90,25 +90,26 @@ def get_users():
 
 @app.route('/transactions', methods=['GET'])
 def get_transactions():
-    
-    # data = request.get_json()
-    data = {"budgetbook_id":1}
+    data = request.get_json()
+    # data = {"budgetbook_id":1}
     budgetbook_id = data["budgetbook_id"]
-
+    print("got bb id from frontend: ", budgetbook_id)
     budget_book = db.session.query(Budgetbook).filter(Budgetbook.id==budgetbook_id).all()
     if len(budget_book) > 1:
         raise "multiple budget books returned"
     else:
         budget_book = budget_book[0]
-
-    return jsonify([transaction.get_dict_of_transaction() for transaction in budget_book.transactions])
+    transactions = [transaction.get_dict_of_transaction() for transaction in budget_book.transactions]
+    print(f"{transactions=}")
+    return jsonify(transactions)
 
 @app.route('/transactions', methods=['POST'])
 def add_transactions():
     
     #data = request.get_json()
-    data = {"budgetbook_id":1}
-    budgetbook_id = data["budgetbook_id"]
+    # data = {"budgetbook_id":1}
+    # budgetbook_id = data["budgetbook_id"]
+    budgetbook_id = request.args.get('budgetbook_id')
 
     budget_book = db.session.query(Budgetbook).filter(Budgetbook.id==budgetbook_id).all()
     if len(budget_book) > 1:

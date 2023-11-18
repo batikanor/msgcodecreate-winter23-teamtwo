@@ -1,5 +1,6 @@
 import { useAuth } from './AuthContext';
 import React, { useState, useEffect } from 'react';
+import Transactions from './Transactions';
 
 const BudgetBooks = () => {
     const { isAuthenticated, setIsAuthenticated } = useAuth();
@@ -45,8 +46,10 @@ const BudgetBooks = () => {
             <h2>Budget Book List</h2>
             <ul>
                 {budgetBooks?.map((budgetBook) => (
-                    <li key={budgetBook.id}> ID: {budgetBook.id}, name: {budgetBook.name} User's id : {budgetBook.user}</li> 
-                    
+                    <>
+                        <li key={budgetBook.id}> ID: {budgetBook.id}, name: {budgetBook.name} User's id : {budgetBook.user}</li>
+                        <li><Transactions bbId={budgetBook.id} /></li>
+                    </>
                 ))}
             </ul>
         </div>
