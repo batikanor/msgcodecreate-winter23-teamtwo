@@ -224,6 +224,15 @@ def add_budgetplan_to_budgetbook():
         return jsonify({'message': "no budgetbook"}), 400
     return 201
 
+@app.route('/budgetplans', methods=['DELETE'])
+@jwt_required()
+def delete_budgetplan_from_budgetbook():
+    user_id = get_jwt_identity()
+    data = request.get_json()
+
+    if not check_admin_privileges(data['budgetbook_id'], user_id):
+        return jsonify({'message': 'Access Denied'}), 401
+
 def update_budget_plans(budgetbook_id, amount, category ):
     if amount > -0.01:
         return False
