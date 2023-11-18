@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from flask_login import LoginManager, login_user
-from flask_jwt_extended import JWTManager, create_access_token
+from flask_jwt_extended import JWTManager, create_access_token, get_jwt_identity, jwt_required
 from dotenv import load_dotenv
 import os
 
@@ -88,8 +88,9 @@ def get_users():
     return jsonify(users_data)
 
 @app.route('/transactions', methods=['GET'])
-def get_transactions():
-    
+@jwt_required    
+def get_transactions_from_budgetbook_id():
+    uid = get_jwt_identity()
     #data = request.get_json()
     data = {"budgetbook_id":1}
     budgetbook_id = data["budgetbook_id"]
@@ -103,44 +104,39 @@ def get_transactions():
     return jsonify([transaction.get_dict_of_transaction() for transaction in budget_book.transactions])
 
 @app.route('/transactions', methods=['POST'])
-def add_transactions():
+def add_transactions_to_budgetbook():
     
     #data = request.get_json()
-    data = {"budgetbook_id":1}
-    budgetbook_id = data["budgetbook_id"]
+    data = {"budgetbook_id":1,
+            
+            'category': "bill",
+            'amount' : -210,
+            'comment': "netflix",
+            'account_id' : 1,
+            'username': "some user name"}
 
-    budget_book = db.session.query(Budgetbook).filter(Budgetbook.id==budgetbook_id).all()
+    try:
+        transaction = Transaction(category=data["category"], comment=data["comment"],
+                              amount =data["amount"],
+                              budgetbook = get_element_instance_from_id(data["budgetbook_id"], Budgetbook),
+                              account = get_element_instance_from_id(data["account_id"], Account) )
+        db.session.add(transaction)
+        db.session.commit(transaction)
+    
+    except ValueError:
+        return jsonify("no budgetbook or account found"), 400
+
+    return jsonify()
+
+def get_element_instance_from_id(id, Type):
+    budget_book = db.session.query(Type).filter(Type.id==id).all()
     if len(budget_book) > 1:
-        raise "multiple budget books returned"
+        raise ValueError("multiple "+ Type +" with the same id found") 
+    elif len(budget_book) < 1:
+        raise ValueError("no " + Type + "s with the same id found") 
     else:
         budget_book = budget_book[0]
-
-    return jsonify([transaction.get_dict_of_transaction() for transaction in budget_book.transactions])
-
-# @app.route('/transactions', methods=['GET'])
-# def add_and_print_transactions():
-#     user= User(username="main user")
-
-#     account = Account(name="main ccount", user_id=user.id)
-#     budget_book = Budgetbook(user_id = user.id, name="main budget book")
-#     transaction = Transaction(categorie="Bill", amount=-200.10, comment="electrecity",
-#                               Account=account.id,
-#                               budgetbook_id = budget_book.id)
-    
-    
-#     account.transactions.append(transaction)
-
-
-#     db.session.add(user)
-#     db.session.add(account)
-#     db.session.add(budget_book)
-#     db.session.add(transaction)
-
-#     db.session.commit()
-
-#     transactions = Transaction.query.all()
-#     data = [{'transaction': transaction.id}  for t in transactions]
-#     jsonify(data)
+    return budget_book
 
 @app.route('/test', methods=['GET'])
 def test_function():
@@ -160,6 +156,7 @@ def test_function():
     # test function here:
     # ------------:------------:------------:
 
+    add_transactions_to_budgetbook()
 
     #:------------:------------:------------:------------:
     db.session.delete(user)
@@ -172,6 +169,18 @@ def test_function():
 
     db.session.commit()
     return jsonify([transaction.get_json_of_transaction() for transaction in budget_book[0].transactions])
+
+@app.route('/budgetbooks', methods=['GET'])
+@jwt_required
+def get_budgetbook_ids_from_user_id():
+    
+    data = request.get_json()
+    user_id = get_jwt_identity()
+
+    budget_books = db.session.query(Budgetbook).filter(Budgetbook.user_id==user_id).all()
+
+
+    return jsonify([budget_book.get_dict_of_budgetbooks() for budget_book in budget_books])
 
 
 @app.route('/account', methods=['GET'])

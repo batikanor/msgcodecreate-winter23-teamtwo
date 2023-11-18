@@ -56,6 +56,12 @@ class Budgetbook(db.Model):
 
     budgetplans = db.relationship("Budgetplan", back_populates="budgetbook")
 
+    def get_dict_of_budgetbooks(self) :
+        budgetbooks = { 'id': self.id,
+                        'name': self.name,
+                        'user' : self.user_id}        
+        return budgetbooks
+
 
 class Transaction(db.Model):
     __tablename__ = 'transaction'
