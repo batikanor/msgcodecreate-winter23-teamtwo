@@ -44,13 +44,8 @@ class Account(db.Model):
 
     def get_dict_of_account(self) :
         account_data = {'id': self.id,
-                            'category': self.category,
-                            'amount' : self.amount,
-                            'comment': self.comment,
-                            'time_of_transaction' : self.time_of_transaction,
-                            'account_id' : self.account_id,
-                            'budgetbook_id':self.budgetbook_id,
-                            'user': self.account.user.username}
+                            'name': self.name,
+                            'amount' : self.amount}
         return account_data
 
 class Budgetbook(db.Model):
