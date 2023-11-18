@@ -56,6 +56,12 @@ class Budgetbook(db.Model):
 
     budgetplans = db.relationship("Budgetplan", back_populates="budgetbook")
 
+    def get_dict_of_budgetbooks(self) :
+        budgetbooks = { 'id': self.id,
+                        'name': self.name,
+                        'user' : self.user_id}        
+        return budgetbooks
+
 
 class Transaction(db.Model):
     __tablename__ = 'transaction'
@@ -82,14 +88,24 @@ class Transaction(db.Model):
                             'comment': self.comment,
                             'time_of_transaction' : self.time_of_transaction,
                             'account_id' : self.account_id,
-                            'budget_book_id':self.budgetbook_id,
+                            'budgetbook_id':self.budgetbook_id,
                             'user': self.account.user.username}
         return transaction_data
     
 class Budgetplan(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 
-    name = db.Column(db.String, default="no_name")
+    category = db.Column(db.String, unique=True, default="no_name")
+    budget = db.Column(db.Float)
+    amount_already_spent = db.Column(db.Float)
 
     budgetbook_id = db.Column(db.Integer, db.ForeignKey('budgetbook.id'))
     budgetbook = db.relationship("Budgetbook")
+
+    def get_dict_of_budgetplan(self) :
+        budgetplan_data = {'id': self.id,
+                           'category': self.category,
+                           'budget': self.budget,
+                           'amount_already_spent' : self.account_id,
+                           'budgetbook_id':self.budgetbook_id}
+        return budgetplan_data

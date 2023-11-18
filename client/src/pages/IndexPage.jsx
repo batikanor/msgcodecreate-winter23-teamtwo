@@ -1,10 +1,12 @@
 import { useAuth } from './AuthContext';
 import { useNavigate } from 'react-router-dom';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState} from 'react';
 import axios from "axios";
+import BudgetBooks from './BudgetBooks';
 
 function IndexPage() {
     const { isAuthenticated, setIsAuthenticated } = useAuth();
+    const [isDataLoaded, setIsDataLoaded] = useState(false); 
     const navigate = useNavigate();
 
     const createMockData = async () => {
@@ -17,6 +19,7 @@ function IndexPage() {
             },
           });
         console.log('response:', response)
+        setIsDataLoaded(true); // Update the state when data is loaded
     }
 
 
@@ -35,6 +38,7 @@ function IndexPage() {
         <div>
             <button onClick={handleLogout}>Logout</button>
             this is an index page
+            {isDataLoaded && <BudgetBooks />}
         </div>
     );
 }

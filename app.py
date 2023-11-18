@@ -4,6 +4,7 @@ from flask_login import LoginManager, login_user
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from dotenv import load_dotenv
 import os
+import random
 
 
 load_dotenv()
@@ -126,6 +127,7 @@ def test_function():
     transaction = Transaction(category="bill", comment="netflix", amount = -100.123,
                               budgetbook =budgetbook, account = account )
     budgetplan = Budgetplan(name="main budget", budgetbook=budgetbook)
+    
     db.session.add(user)
     db.session.add(account)
     db.session.add(budgetbook)
@@ -159,13 +161,14 @@ def blabla():
 @jwt_required()
 def mock():
     uid = get_jwt_identity()
+    print(f"{uid=}")
+    random_number = random.randint(1, 9999999)
     user = User.query.filter_by(id=uid).first()
     account = Account(name="main ccount", user=user)
     budgetbook = Budgetbook(name="main budget book", user=user)
-    transaction = Transaction(category="bill", comment="netflix", amount = -100.123,
+    transaction = Transaction(category="bill"+str(random_number), comment="netflix", amount = -100.123,
                               budgetbook =budgetbook, account = account )
-    budgetplan = Budgetplan(name="main budget", budgetbook=budgetbook)
-
+    budgetplan = Budgetplan(category="food" +str(random_number), budgetbook=budgetbook)
 
     try:
         db.session.add(account)
@@ -223,14 +226,20 @@ def add_and_print_transactions():
 
     return jsonify(data)
 
-@app.route('/budgetbooks', methods=['GET']) # , endpoint='/budgetbooks')
+@app.route('/budgetbooks', methods=['GET']) 
 @jwt_required()
 def get_budgetbook_ids_from_user_id():
     user_id = get_jwt_identity()
+    print(f"{user_id=}")
     budget_books = db.session.query(Budgetbook).filter(Budgetbook.user_id==user_id).all()
-    return jsonify([budget_book.get_dict_of_budgetbooks() for budget_book in budget_books])
+    structured = [budget_book.get_dict_of_budgetbooks() for budget_book in budget_books]
+    print(f"{structured=}")
+    # print(f"{jsonify([budget_book.get_dict_of_budgetbooks() for budget_book in budget_books])=}")
+    # return jsonify([budget_book.get_dict_of_budgetbooks() for budget_book in budget_books])
 
-
+    # return structured
+    # return jsonify({"message": "romo"}
+    return jsonify(structured)
 
 # for now, set up dataset everytime the app starts
 # so it'll check database and create tables for those we don't have tables yet.
