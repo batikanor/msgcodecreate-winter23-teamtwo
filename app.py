@@ -90,7 +90,7 @@ def get_users():
 @app.route('/transactions', methods=['GET'])
 @jwt_required    
 def get_transactions_from_budgetbook_id():
-    uid = get_jwt_identity()
+
     #data = request.get_json()
     data = {"budgetbook_id":1}
     budgetbook_id = data["budgetbook_id"]
@@ -106,14 +106,14 @@ def get_transactions_from_budgetbook_id():
 @app.route('/transactions', methods=['POST'])
 def add_transactions_to_budgetbook():
     
-    #data = request.get_json()
-    data = {"budgetbook_id":1,
+    data = request.get_json()
+    # data = {"budgetbook_id":1,
             
-            'category': "bill",
-            'amount' : -210,
-            'comment': "netflix",
-            'account_id' : 1,
-            'username': "some user name"}
+    #         'category': "bill",
+    #         'amount' : -210,
+    #         'comment': "netflix",
+    #         'account_id' : 1,
+    #         'username': "some user name"}
 
     try:
         transaction = Transaction(category=data["category"], comment=data["comment"],
@@ -174,7 +174,6 @@ def test_function():
 @jwt_required
 def get_budgetbook_ids_from_user_id():
     
-    data = request.get_json()
     user_id = get_jwt_identity()
 
     budget_books = db.session.query(Budgetbook).filter(Budgetbook.user_id==user_id).all()
