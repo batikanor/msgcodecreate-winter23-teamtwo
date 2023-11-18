@@ -19,6 +19,7 @@ bcrypt.init_app(app)
 @app.route('/', methods=['GET'])
 def get_hello():
     return jsonify({'status': 'developing'})
+
 # user registration route
 @app.route('/register', methods=['POST'])
 def register():

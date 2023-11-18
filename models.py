@@ -10,7 +10,7 @@ db = SQLAlchemy()
 bcrypt = Bcrypt()
 
 class User(db.Model):
-    user_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(120), nullable=False)
     privilage = db.Column(db.String)
@@ -24,51 +24,52 @@ class User(db.Model):
 
 
 class Transaction(db.Model):
-
-    transaction_id = db.Column(
+    id = db.Column(
         db.Integer, primary_key=True, autoincrement=True)
 
     categorie = db.Column(db.String)
     amount = db.Column(db.Float, default=0)
     comment = db.Column(db.String, default="no_comment")
     time_of_transaction = db.Column(
-        db.DateTime, server_default=datetime.datetime.utcnow)
+        db.DateTime, default=datetime.datetime.utcnow)
 
     account_id = db.Column(
-        db.Integer, db.Foreign_key("account.id"), autoincrement=True)
+        db.Integer, db.ForeignKey("account.id", ondelete='CASCADE'))
     account = db.relationship(
         "Account", back_populates="transaction")
 
-    budgetbook_id = db.Column(db.Integer, db.ForeignKey('budgetbook.id'))
+    budgetbook_id = db.Column(db.Integer, db.ForeignKey(
+        'budgetbook.id', ondelete='CASCADE'))
     budgetbook = db.relationship(
         "BudgetBook", back_populates="transaction")
 
 
 class Account(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String, default="no_name")
 
-    account_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 
-
-class BudgetBook(db.Model):
-
-    budgetbook_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+class Budgetbook(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 
     name = db.Column(db.String, default="no_name")
 
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey(
+        'user.id', ondelete='CASCADE'))
     user = db.relationship(
         "User", back_populates="budgetbook")
 
-
 class BudgetPlan(db.Model):
-    budgetplan_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 
     name = db.Column(db.String, default="no_name")
 
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey(
+        'user.id', ondelete='CASCADE'))
     user = db.relationship(
         "User", back_populates="budgetplan")
 
-    budgetbook_id = db.Column(db.Integer, db.ForeignKey('budgetbook.id'))
+    budgetbook_id = db.Column(db.Integer, db.ForeignKey(
+        'budgetbook.id', ondelete='CASCADE'))
     budgetbook = db.relationship(
         "BudgetBook", back_populates="transaction")
