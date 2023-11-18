@@ -60,7 +60,9 @@ def register():
     new_user.set_password(password)
     db.session.add(new_user)
     db.session.commit()
-
+    new_budgetbook = Budgetbook(name=f"{username}\'s Budget Book", user_id=new_user.id)
+    db.session.add(new_budgetbook)
+    db.session.commit()
     return jsonify({'message': 'User created successfully'}), 201
 
 # user login route
@@ -216,7 +218,7 @@ def add_budgetplan_to_budgetbook():
         budgetplan = Budgetplan(category=data["category"],
                                 budget=data["budget"],
                                 amount_already_spent=data["amount_already_spent"],
-                                budgetbook = get_element_instance_from_id(data["budgetbook_id"], Budgetbook),)
+                                budgetbook = get_element_instance_from_id(data["budgetbook_id"], Budgetbook))
         db.session.add(budgetplan)
         db.session.commit()
     
@@ -232,8 +234,15 @@ def delete_budgetplan_from_budgetbook():
 
     if not check_admin_privileges(data['budgetbook_id'], user_id):
         return jsonify({'message': 'Access Denied'}), 401
+    
+    budgetplan = db.session.query(Budgetplan).filter(Budgetplan.id==data['budgetplan_id'])
+    if not budgetplan:
+        return jsonify({'message': "budgetplan doesn't exist"})
+    budgetplan.dekete()
+    db.session.commit()
+    return 201
 
-def update_budget_plans(budgetbook_id, amount, category ):
+def update_budget_plans(budgetbook_id, amount, category):
     if amount > -0.01:
         return False
     
@@ -293,6 +302,18 @@ def add_account_to_user():
                             user_id=user_id)
     db.session.add(account)
     db.session.commit()
+    return 201
+
+@app.route('/accounts', methods=['DELETE'])
+@jwt_required()
+def delete_account_from_user():
+    user_id = get_jwt_identity()
+    data = request.get_json()
+
+    account = db.session.query(Account).filter(Account.id==data['account_id'])
+    if not account:
+        return jsonify({'message': "Account doesn't exist"}), 400
+    account.delete()
     return 201
 
 @app.route('/plot', methods=['GET']) 
