@@ -54,6 +54,8 @@ class Budgetbook(db.Model):
 
     transactions = db.relationship("Transaction", back_populates="budgetbook")
 
+    budgetplans = db.relationship("Budgetplan", back_populates="budgetbook")
+
 
 class Transaction(db.Model):
     __tablename__ = 'transaction'
@@ -73,23 +75,21 @@ class Transaction(db.Model):
     budgetbook_id = db.Column(db.Integer, db.ForeignKey('budgetbook.id'))
     budgetbook = db.relationship("Budgetbook")
 
-    def get_json_of_transaction(self) :
+    def get_dict_of_transaction(self) :
         transaction_data = {'id': self.id,
                             'category': self.category,
                             'amount' : self.amount,
                             'comment': self.comment,
-                            'time of transaction' : self.time_of_transaction,
-                            'account id' : self.account_id,
+                            'time_of_transaction' : self.time_of_transaction,
+                            'account_id' : self.account_id,
+                            'budget_book_id':self.budgetbook_id,
                             'user': self.account.user.username}
-        
-        return jsonify(transaction_data)
+        return transaction_data
     
-# class BudgetPlan(db.Model):
-#     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+class Budgetplan(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 
-#     name = db.Column(db.String, default="no_name")
+    name = db.Column(db.String, default="no_name")
 
-#     budgetbook_id = db.Column(db.Integer, db.ForeignKey(
-#         'budgetbook.id', ondelete='CASCADE'))
-#     budgetbook = db.relationship(
-#         "Budgetbook", back_populates="budgetplan")
+    budgetbook_id = db.Column(db.Integer, db.ForeignKey('budgetbook.id'))
+    budgetbook = db.relationship("Budgetbook")
