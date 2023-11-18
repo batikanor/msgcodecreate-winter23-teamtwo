@@ -51,16 +51,35 @@ const Transactions = ({ bbId }) => {
     if (loading) {
         return <div>Loading...</div>;
     }
+    // return (
+    //     <div>
+    //         <h2>Transaction List</h2>
+    //         <ul>
+    //             {transactions?.map((transaction) => (
+    //                 <li key={transaction.id}> id: {transaction.id} acc id: {transaction.account_id} category: {transaction.category} comment: {transaction.comment} time_of_transaction: {transaction.time_of_transaction} whose transaction is it: {transaction.user} </li> 
+    //             ))}
+    //         </ul>
+    //     </div>
+    // );
+
     return (
-        <div>
-            <h2>Transaction List</h2>
+        <section className="transactions">
+            <header>
+                <h2>Transaction List</h2>
+            </header>
             <ul>
-                {transactions?.map((transaction) => (
-                    <li key={transaction.id}> id: {transaction.id} acc id: {transaction.account_id} category: {transaction.category} comment: {transaction.comment} time_of_transaction: {transaction.time_of_transaction} whose transaction is it: {transaction.user} </li> 
+                {transactions.map((transaction) => (
+                    <li key={transaction.id} className="transaction-item">
+                        <span className="transaction-detail">ID: {transaction.id}</span>
+                        <span className="transaction-detail">Account ID: {transaction.account_id}</span>
+                        {/* Other transaction details */}
+                    </li> 
                 ))}
             </ul>
-        </div>
+        </section>
     );
+
+
 };
 
 export default Transactions;

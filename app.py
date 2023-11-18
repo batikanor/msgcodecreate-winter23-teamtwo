@@ -82,13 +82,13 @@ def login():
     
 # TODO 2: This route constitutes a vulnerability, and is only here for easy debugging and demonstration purposes. Thus, this route would be removed in an end application.
 # TODO 1: We can extend this and display all db objects with this for hackathon demonstration purposes somewhere 
-@app.route('/users', methods=['GET'])   
-def get_users():
-    users = User.query.all()
-    users_data = [{'id': user.id, 'username': user.username, 'password': user.password} for user in users]
-    return jsonify(users_data)
+# @app.route('/users', methods=['GET'])   
+# def get_users():
+#     users = User.query.all()
+#     users_data = [{'id': user.id, 'username': user.username, 'password': user.password} for user in users]
+#     return jsonify(users_data)
 
-@app.route('/transactions', methods=['GET'])
+@app.route('/transactions', methods=['POST'])
 def get_transactions():
     data = request.get_json()
     # data = {"budgetbook_id":1}
@@ -103,21 +103,21 @@ def get_transactions():
     print(f"{transactions=}")
     return jsonify(transactions)
 
-@app.route('/transactions', methods=['POST'])
-def add_transactions():
+# @app.route('/transactions', methods=['POST'])
+# def add_transactions():
     
-    #data = request.get_json()
-    # data = {"budgetbook_id":1}
-    # budgetbook_id = data["budgetbook_id"]
-    budgetbook_id = request.args.get('budgetbook_id')
+#     #data = request.get_json()
+#     # data = {"budgetbook_id":1}
+#     # budgetbook_id = data["budgetbook_id"]
+#     budgetbook_id = request.args.get('budgetbook_id')
 
-    budget_book = db.session.query(Budgetbook).filter(Budgetbook.id==budgetbook_id).all()
-    if len(budget_book) > 1:
-        raise "multiple budget books returned"
-    else:
-        budget_book = budget_book[0]
+#     budget_book = db.session.query(Budgetbook).filter(Budgetbook.id==budgetbook_id).all()
+#     if len(budget_book) > 1:
+#         raise "multiple budget books returned"
+#     else:
+#         budget_book = budget_book[0]
 
-    return jsonify([transaction.get_dict_of_transaction() for transaction in budget_book.transactions])
+#     return jsonify([transaction.get_dict_of_transaction() for transaction in budget_book.transactions])
 
 
 @app.route('/test', methods=['GET'])
