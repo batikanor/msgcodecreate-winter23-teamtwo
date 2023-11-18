@@ -48,7 +48,7 @@ const BudgetBooks = () => {
                 {budgetBooks?.map((budgetBook) => (
                     <>
                         <li key={budgetBook.id}> ID: {budgetBook.id}, name: {budgetBook.name} User's id : {budgetBook.user}</li>
-                        <li><Transactions bbId={budgetBook.id} /></li>
+                        <ul><Transactions bbId={budgetBook.id} /></ul>
                     </>
                 ))}
             </ul>
