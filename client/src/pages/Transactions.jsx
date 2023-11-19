@@ -1,11 +1,13 @@
 import { useAuth } from './AuthContext';
 import React, { useState, useEffect } from 'react';
-import {  Card, CardContent, List, ListItem, ListItemText, Typography, Box, CircularProgress } from '@mui/material';
+import {  Card, CardContent, List, ListItem, ListItemText, Typography, Box, CircularProgress, TextField, Button } from '@mui/material';
 
 const Transactions = ({ bbId }) => {
+    const [refresh, setRefresh] = useState(true)
     const { isAuthenticated, setIsAuthenticated } = useAuth();
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(true); 
+    const [newTransactionAmount, setnewTransactionAmount] = useState(''); 
 
     useEffect(() => {
         const fetchTransactions = async () => {
@@ -47,8 +49,39 @@ const Transactions = ({ bbId }) => {
         };
 
         fetchTransactions(); 
-    }, [bbId]); // Add bbId as a dependency to useEffect
-    
+    }, [bbId,  refresh]); // Add bbId as a dependency to useEffect
+
+    const handleInputChange = (e) => {
+        setnewTransactionAmount(e.target.value);
+    };
+
+    const handleButtonClick = async () => {
+        // const selectedBook = budgetBooks.find(book => book.id === selectedBudgetBook);
+        // console.log('Selected Budget Book id:', selectedBudgetBook || 'None selected');
+        const jwt_token = localStorage.getItem('userToken');
+
+        const response = await fetch('http://127.0.0.1:5000/addtransactions', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${jwt_token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ budgetbook_id: bbId, category:"category", comment: "com", account_id: "1", amount: newTransactionAmount })
+        });
+        console.log(await response.ok)
+        if (response.ok){
+            console.log("ok")
+        } else {
+            console.log("not ok")
+        }
+
+        setRefresh(!refresh)
+
+    };
+
+
+
+
     // if (loading) {
     //     return <div>Loading...</div>;
     // }
@@ -115,20 +148,20 @@ const Transactions = ({ bbId }) => {
     }
 
     return (
-        <Box 
-            display="flex" 
-            flexWrap="wrap" 
-            justifyContent="center" 
-            alignItems="flex-start" 
+        <><Box
+            display="flex"
+            flexWrap="wrap"
+            justifyContent="center"
+            alignItems="flex-start"
             gap={2} // Dies erzeugt einen Abstand zwischen den Boxen
             p={2}
         >
             {transactions.map((transaction) => (
                 <Card key={transaction.id} sx={{
-                     minWidth: 275, 
-                     maxWidth: 'calc(50% - 16px)',
-                     backgroundColor: transaction.amount < 0 ? 'magenta' : 'gray', // Conditional color based on amount
-                     }}>
+                    minWidth: 275,
+                    maxWidth: 'calc(50% - 16px)',
+                    backgroundColor: transaction.amount < 0 ? 'magenta' : 'gray', // Conditional color based on amount
+                }}>
                     <CardContent>
                         <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
                             Transaction ID: {transaction.id}
@@ -145,7 +178,16 @@ const Transactions = ({ bbId }) => {
                     </CardContent>
                 </Card>
             ))}
-        </Box>
+        </Box><Box component="div">
+                <TextField
+                    label="Enter the transaction amount"
+                    variant="outlined"
+                    value={newTransactionAmount}
+                    onChange={handleInputChange} />
+                <Button variant="contained" color="primary" onClick={handleButtonClick}>
+                    Add new transaction
+                </Button>
+        </Box></>
     );
     
 };

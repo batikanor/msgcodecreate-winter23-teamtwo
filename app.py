@@ -64,7 +64,18 @@ def register():
     db.session.add(new_user)
     db.session.commit()
     new_budgetbook = Budgetbook(name=f"{username}\'s Budget Book", user_id=new_user.id)
+    
+
+    account = Account(name="First Checking Account", user=new_user)
+
+    random_number = random.randint(1, 9999999)
+    transaction = Transaction(category="bill"+str(random_number), comment="netflix", amount = -100.123,
+                              budgetbook =new_budgetbook, account = account )
     db.session.add(new_budgetbook)
+    db.session.add(account)
+    db.session.add(transaction)
+
+
     db.session.commit()
     return jsonify({'message': 'User created successfully'}), 201
 
@@ -133,29 +144,29 @@ def get_transactions_from_budgetbook_id():
     return jsonify([transaction.get_dict_of_transaction() for transaction in budgetbook.transactions])
 
 @app.route('/addtransactions', methods=['POST'])
-#@jwt_required()
+@jwt_required()
 def add_transaction_to_budgetbook_and_budgetplan(data=None):
-    #current_user_id = get_jwt_identity()
-    current_user_id = 1#mock
+    current_user_id = get_jwt_identity()
+    # current_user_id = 1#mock
     if data is None:
         data = request.get_json()
 
     try:
         if not check_admin_privileges(data["budgetbook_id"], current_user_id):
             return jsonify({'message': 'Access Denied'}), 401
-        
+        amount = float(data["amount"])
         transaction = Transaction(category=data["category"], comment=data["comment"],
-                              amount =data["amount"],
+                              amount =amount,
                               budgetbook = get_element_instance_from_id(data["budgetbook_id"], Budgetbook),
                               account = get_element_instance_from_id(data["account_id"], Account))
         db.session.add(transaction)
         db.session.commit()
         updated_budget_plan_id = update_budget_plans(data["budgetbook_id"],
-                                                  data["amount"], data["category"])
+                                                  amount, data["category"])
         if updated_budget_plan_id:
             return jsonify({'budget_plan_id': updated_budget_plan_id}), 201
         else:
-            return 201
+            return jsonify({'status': 201})
             
     except ValueError:
         return jsonify({'message': "no budgetbook or account found"}), 400
@@ -395,7 +406,7 @@ def mock():
     print(f"{uid=}")
     random_number = random.randint(1, 9999999)
     user = User.query.filter_by(id=uid).first()
-    account = Account(name="main ccount", user=user)
+    account = Account(name="main account", user=user)
     budgetbook = Budgetbook(name="main budget book", user=user)
     transaction = Transaction(category="bill"+str(random_number), comment="netflix", amount = -100.123,
                               budgetbook =budgetbook, account = account )
