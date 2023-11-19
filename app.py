@@ -343,6 +343,17 @@ def get_plot_of_expenses_per_category_for_budgetbook():
     budgetbook_id = data['budgetbook_id']
     return plot_pie_chart_for_budgetbook_by_category(budgetbook_id, user_id), 200
 
+@app.route('/sum', methods=['GET'])
+@jwt_required()
+def get_sum_of_expenses_by_category():
+    user_id = get_jwt_identity()
+    data = request.get_json()
+    transactions = db.session.query(Transaction).filter(Transaction.budgetbook_id==data['budgetbook_id']).all()
+    sum = 0.00
+    for transaction in transactions:
+        sum += transaction.amount
+    return jsonify({'sum': sum}), 200
+
 
 @app.route('/test', methods=['GET'])
 def test_function():
