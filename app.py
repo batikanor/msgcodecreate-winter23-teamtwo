@@ -359,7 +359,7 @@ def mock():
     db.session.add(budgetplan)
     db.session.commit()
 
-    amounts = [-123, -34,-231,-6,-2,-5]
+    amounts = [-123, +34,-231,+6,-2,+5]
     categories = ["bill", "entertainment","bill", "transport","bill", "food"]
     # test function here:
     # ------------:------------:------------:
