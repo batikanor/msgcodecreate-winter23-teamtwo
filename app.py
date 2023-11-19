@@ -89,6 +89,25 @@ def get_users():
     users_data = [{'id': user.id, 'username': user.username, 'password': user.password} for user in users]
     return jsonify(users_data)
 
+@app.route('/users', methods=['DELETE'])
+@jwt_required()
+def delete_user():
+    user_id = get_jwt_identity()
+    user = db.session.query(User).filter(User.id==user_id).first()
+    if not user:
+        return jsonify({'message': "user logged in not found"}), 400
+    if user.privilege != "admin":
+        return jsonify({'message': 'Access Denied'}), 401
+    user_to_delete_id = request.get_json()['user_id']
+    if not user_to_delete_id:
+        return jsonify({'message': "user to delete not found"}), 400
+    user_to_delete = db.session.query(User).filter(User.id==user_to_delete_id).first()
+    if not user_to_delete:
+        return jsonify({'message': "user to delete not found"}), 400
+    user_to_delete.delete()
+    db.session.commit()
+    return 200
+
 @app.route('/transactions', methods=['GET'])
 @jwt_required()
 def get_transactions_from_budgetbook_id():
@@ -157,9 +176,9 @@ def delete_transaction_from_budgetbook_and_budgetplan(data=None):
 
         updated_budget_plan_id = update_budget_plans_after_deleted_transaction(budgetbook_id, amount, category)
         if updated_budget_plan_id:
-            return jsonify({'budget_plan_id': updated_budget_plan_id}), 201
+            return jsonify({'budget_plan_id': updated_budget_plan_id}), 200
         else:
-            return 201
+            return 200
         
     except ValueError:
         return jsonify({'message': "no budgetbook or account found"}), 400
@@ -240,7 +259,7 @@ def delete_budgetplan_from_budgetbook():
         return jsonify({'message': "budgetplan doesn't exist"})
     budgetplan.dekete()
     db.session.commit()
-    return 201
+    return 200
 
 def update_budget_plans(budgetbook_id, amount, category):
     if amount > -0.01:
@@ -279,7 +298,7 @@ def get_budgetbook_ids_from_user_id():
     else:
         budget_books = db.session.query(Budgetbook).filter(Budgetbook.user_id==user_id).all()
 
-    return jsonify([budget_book.get_dict_of_budgetbooks() for budget_book in budget_books]), 201
+    return jsonify([budget_book.get_dict_of_budgetbooks() for budget_book in budget_books]), 200
 
 @app.route('/accounts', methods=['GET'])
 @jwt_required()
@@ -287,7 +306,7 @@ def get_accounts_from_user_id():
     user_id = get_jwt_identity()
     user = get_element_instance_from_id(user_id, User)
     accounts = user.accounts
-    return jsonify([account.get_dict_of_account() for account in accounts]), 201
+    return jsonify([account.get_dict_of_account() for account in accounts]), 200
 
 @app.route('/accounts', methods=['POST'])
 @jwt_required()
@@ -314,7 +333,7 @@ def delete_account_from_user():
     if not account:
         return jsonify({'message': "Account doesn't exist"}), 400
     account.delete()
-    return 201
+    return 200
 
 @app.route('/plot', methods=['GET']) 
 @jwt_required()
@@ -322,7 +341,7 @@ def get_plot_of_expenses_per_category_for_budgetbook():
     user_id = get_jwt_identity()
     data = request.get_json()
     budgetbook_id = data['budgetbook_id']
-    return plot_pie_chart_for_budgetbook_by_category(budgetbook_id, user_id), 201
+    return plot_pie_chart_for_budgetbook_by_category(budgetbook_id, user_id), 200
 
 
 @app.route('/test', methods=['GET'])
