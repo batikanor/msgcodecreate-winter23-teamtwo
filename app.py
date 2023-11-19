@@ -341,7 +341,7 @@ def get_plot_of_expenses_per_category_for_budgetbook():
     user_id = get_jwt_identity()
     data = request.get_json()
     budgetbook_id = data['budgetbook_id']
-    return plot_pie_chart_for_budgetbook_by_category(budgetbook_id, user_id), 200
+    return jsonify(plot_pie_chart_for_budgetbook_by_category(budgetbook_id, user_id)), 200
 
 @app.route('/sum', methods=['GET'])
 @jwt_required()
