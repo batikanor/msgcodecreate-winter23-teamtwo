@@ -164,7 +164,7 @@ const Transactions = ({ bbId }) => {
                 <Card key={transaction.id} sx={{
                     minWidth: 275,
                     maxWidth: 'calc(50% - 16px)',
-                    backgroundColor: transaction.amount < 0 ? 'magenta' : 'gray', // Conditional color based on amount
+                    backgroundColor: transaction.amount < 0 ? '#9c2d60' : 'gray', // Conditional color based on amount
                 }}>
                     <CardContent>
                         <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>

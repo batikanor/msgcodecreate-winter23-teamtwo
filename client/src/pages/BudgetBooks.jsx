@@ -6,7 +6,7 @@ import Plot from 'react-plotly.js';
 // import List from '@mui/material/List';
 // import ListItem from '@mui/material/ListItem';
 // import ListItemText from '@mui/material/ListItemText';
-import { List, ListItem, ListItemText, Paper, Typography, Box, Button, TextField, CircularProgress, MenuItem } from '@mui/material';
+import { List, ListItem, ListItemText, Paper, Typography, Box, Button, TextField, CircularProgress, MenuItem, Divider } from '@mui/material';
 // import Divider from '@mui/material/Divider';
 const style = {
     width: '100%',
@@ -189,24 +189,33 @@ const BudgetBooks = () => {
         <Paper elevation={3} sx={{ margin: '16px', padding: '16px' }}>
             <Typography variant="h4" gutterBottom>
                 Budget Book List
+                <Divider />
+                <Divider />
+                <Divider />
             </Typography>
 
             <List>
                 {budgetBooks.map( (budgetBook) => (
                     <React.Fragment key={budgetBook.id}>
-                        <ListItem>
-                            <ListItemText
-                                primary={`ID: ${budgetBook.id}, name: ${budgetBook.name}`}
-                                secondary={`User's id : ${budgetBook.user}`}
-                            />
-                            <Transactions bbId={budgetBook.id} />
-                        </ListItem>
-                        {plotsData[budgetBook.id] && (
-                            <Plot 
-                            data={plotsData[budgetBook.id].data}
-                            layout={plotsData[budgetBook.id].layout} 
-                            />
-                        )}
+                        <Box bgcolor="white"> 
+                            <Box bgcolor="pink"> 
+                                <ListItem>
+                                    <ListItemText
+                                        primary={`Budget Book Name: ${budgetBook.name}`}
+                                        secondary={`User's id : ${budgetBook.user}`}
+                                    />
+                                    <Transactions bbId={budgetBook.id} />
+                                </ListItem>
+                            </Box> 
+
+                            {plotsData[budgetBook.id] && (
+                                <Plot 
+                                data={plotsData[budgetBook.id].data}
+                                layout={plotsData[budgetBook.id].layout} 
+                                />
+                            )}
+                        </Box> 
+
                     </React.Fragment>
                 ))}
             </List>
@@ -222,9 +231,11 @@ const BudgetBooks = () => {
                 margin="normal"
             >
                 {budgetBooks.map((book) => (
-                    <MenuItem key={book.id} value={book.id}>
-                        {book.id}: {book.name}
-                    </MenuItem>
+                    <>
+                        <MenuItem key={book.id} value={book.id}>
+                            {book.id}: {book.name}
+                        </MenuItem>
+                    </>
                 ))}
             </TextField>
             
