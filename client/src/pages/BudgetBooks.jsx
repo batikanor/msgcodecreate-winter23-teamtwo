@@ -1,10 +1,11 @@
 import { useAuth } from './AuthContext';
 import React, { useState, useEffect } from 'react';
 import Transactions from './Transactions';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemText from '@mui/material/ListItemText';
-import Divider from '@mui/material/Divider';
+// import List from '@mui/material/List';
+// import ListItem from '@mui/material/ListItem';
+// import ListItemText from '@mui/material/ListItemText';
+import { List, ListItem, ListItemText, Paper, Typography, Box, Button, TextField, CircularProgress, MenuItem } from '@mui/material';
+// import Divider from '@mui/material/Divider';
 const style = {
     width: '100%',
     maxWidth: 360,
@@ -56,9 +57,7 @@ const BudgetBooks = () => {
         fetchBudgetBooks(); 
     }, []);
     
-    if (loading) {
-        return <div>Loading...</div>;
-    }
+
 
     // return (
     //     <div>
@@ -73,51 +72,106 @@ const BudgetBooks = () => {
     //         </ul>
     //     </div>
     // );
+    // if (loading) {
+    //     return <div>Loading...</div>;
+    // }
+    // return (
+    //     <div>
+
+    //         <Divider></Divider>
+    //         <Divider></Divider>
+    //         <Divider></Divider>
+    //         <Divider></Divider>
+    //         <Divider></Divider>
+
+    //         <h2>Budget Book List</h2>
+    //         <Divider></Divider>
+    //         <Divider></Divider>
+    //         <Divider></Divider>
+    //         <Divider></Divider>
+    //         <Divider></Divider>
+    //         <ul>
+    //             {budgetBooks?.map((budgetBook) => (
+    //                 <List sx={style} component="nav" aria-label="mailbox folders">
+    //                     <React.Fragment key={budgetBook.id}>
+    //                         <li>ID: {budgetBook.id}, name: {budgetBook.name} User's id : {budgetBook.user}</li>
+    //                         {/* <ul><Transactions bbId={budgetBook.id} /></ul> */}
+    //                         <Divider></Divider>
+    //                         <Divider></Divider>
+
+    //                         <ListItem divider>
+    //                             <ListItemText primary="Transactions" />
+    //                             <Transactions bbId={budgetBook.id} />
+    //                         </ListItem>
+    //                     </React.Fragment>
+    //                 </List>
+
+
+
+
+    //             ))}
+    //         </ul>
+    //         <select value={selectedBudgetBook} onChange={handleSelectChange}>
+    //             <option value="">Select a Budget Book</option>
+    //             {budgetBooks.map((book) => (
+    //                 <option key={book.id} value={book.id}>{book.id}: {book.name}</option>
+    //             ))}
+    //         </select>
+    //         <button onClick={handleButtonClick}>Print Selected Budget Book</button>
+    //     </div>
+    // );
+
+    if (loading) {
+        return (
+            <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+                <CircularProgress />
+            </Box>
+        );
+    }
+
     return (
-        <div>
+        <Paper elevation={3} sx={{ margin: '16px', padding: '16px' }}>
+            <Typography variant="h4" gutterBottom>
+                Budget Book List
+            </Typography>
 
-            <Divider></Divider>
-            <Divider></Divider>
-            <Divider></Divider>
-            <Divider></Divider>
-            <Divider></Divider>
-
-            <h2>Budget Book List</h2>
-            <Divider></Divider>
-            <Divider></Divider>
-            <Divider></Divider>
-            <Divider></Divider>
-            <Divider></Divider>
-            <ul>
-                {budgetBooks?.map((budgetBook) => (
-                    <List sx={style} component="nav" aria-label="mailbox folders">
-                        <React.Fragment key={budgetBook.id}>
-                            <li>ID: {budgetBook.id}, name: {budgetBook.name} User's id : {budgetBook.user}</li>
-                            {/* <ul><Transactions bbId={budgetBook.id} /></ul> */}
-                            <Divider></Divider>
-                            <Divider></Divider>
-
-                            <ListItem divider>
-                                <ListItemText primary="Transactions" />
-                                <Transactions bbId={budgetBook.id} />
-                            </ListItem>
-                        </React.Fragment>
-                    </List>
-
-
-
-
+            <List>
+                {budgetBooks.map((budgetBook) => (
+                    <React.Fragment key={budgetBook.id}>
+                        <ListItem>
+                            <ListItemText
+                                primary={`ID: ${budgetBook.id}, name: ${budgetBook.name}`}
+                                secondary={`User's id : ${budgetBook.user}`}
+                            />
+                            <Transactions bbId={budgetBook.id} />
+                        </ListItem>
+                    </React.Fragment>
                 ))}
-            </ul>
-            <select value={selectedBudgetBook} onChange={handleSelectChange}>
-                <option value="">Select a Budget Book</option>
+            </List>
+
+            <TextField
+                select
+                label="Select a Budget Book"
+                value={selectedBudgetBook}
+                onChange={(e) => setSelectedBudgetBook(e.target.value)}
+                helperText="Please select your budget book"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+            >
                 {budgetBooks.map((book) => (
-                    <option key={book.id} value={book.id}>{book.id}: {book.name}</option>
+                    <MenuItem key={book.id} value={book.id}>
+                        {book.name}
+                    </MenuItem>
                 ))}
-            </select>
-            <button onClick={handleButtonClick}>Print Selected Budget Book</button>
-        </div>
+            </TextField>
+            
+            <Button variant="contained" color="primary" onClick={handleButtonClick}>
+                Print Selected Budget Book
+            </Button>
+        </Paper>
     );
+
 };
 
 export default BudgetBooks;

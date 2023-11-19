@@ -6,6 +6,8 @@ from flask_jwt_extended import JWTManager, create_access_token, get_jwt_identity
 from dotenv import load_dotenv
 import os
 from plot import plot_pie_chart_for_budgetbook_by_category
+from datetime import timedelta
+
 
 load_dotenv()
 
@@ -72,11 +74,18 @@ def login():
 
     if user and user.check_password(data.get('password')):
         # login_user(user)
-        access_token = create_access_token(identity=user.id)
+        # access_token = create_access_token(identity=user.id)
         # return jsonify({'message': 'Login successful'}), 200
+
+        # TODO: in deployment, this would be changed to a far shorter time... for now, set expiration to a long duration, e.g., 30 years
+        expires = timedelta(days=365 * 30)
+        access_token = create_access_token(identity=user.id, expires_delta=expires)
+
+
         print(f"{access_token=}")
         print(f"{jsonify(access_token=access_token)=}")
         return jsonify(access_token=access_token), 200
+    
     else:
         return jsonify({'message': 'Invalid credentials'}), 401
     

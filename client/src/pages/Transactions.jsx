@@ -1,5 +1,6 @@
 import { useAuth } from './AuthContext';
 import React, { useState, useEffect } from 'react';
+import {  Card, CardContent, List, ListItem, ListItemText, Typography, Box, CircularProgress } from '@mui/material';
 
 const Transactions = ({ bbId }) => {
     const { isAuthenticated, setIsAuthenticated } = useAuth();
@@ -48,38 +49,98 @@ const Transactions = ({ bbId }) => {
         fetchTransactions(); 
     }, [bbId]); // Add bbId as a dependency to useEffect
     
-    if (loading) {
-        return <div>Loading...</div>;
-    }
+    // if (loading) {
+    //     return <div>Loading...</div>;
+    // }
+    // // return (
+    // //     <div>
+    // //         <h2>Transaction List</h2>
+    // //         <ul>
+    // //             {transactions?.map((transaction) => (
+    // //                 <li key={transaction.id}> id: {transaction.id} acc id: {transaction.account_id} category: {transaction.category} comment: {transaction.comment} time_of_transaction: {transaction.time_of_transaction} whose transaction is it: {transaction.user} </li> 
+    // //             ))}
+    // //         </ul>
+    // //     </div>
+    // // );
+
     // return (
-    //     <div>
-    //         <h2>Transaction List</h2>
+    //     <section className="transactions">
+    //         <header>
+    //             <h2>Transaction List</h2>
+    //         </header>
     //         <ul>
-    //             {transactions?.map((transaction) => (
-    //                 <li key={transaction.id}> id: {transaction.id} acc id: {transaction.account_id} category: {transaction.category} comment: {transaction.comment} time_of_transaction: {transaction.time_of_transaction} whose transaction is it: {transaction.user} </li> 
+    //             {transactions.map((transaction) => (
+    //                 <li key={transaction.id} className="transaction-item">
+    //                     <span className="transaction-detail">ID: {transaction.id}</span>
+    //                     <span className="transaction-detail">Account ID: {transaction.account_id}</span>
+    //                     {/* Other transaction details */}
+    //                 </li> 
     //             ))}
     //         </ul>
-    //     </div>
+    //     </section>
     // );
+    // if (loading) {
+    //     return (
+    //         <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+    //             <CircularProgress />
+    //         </Box>
+    //     );
+    // }
+
+    // return (
+    //     <Box sx={{ bgcolor: '#f5f5f5', p: 2, margin: '16px', borderRadius: '4px' }}>
+    //         <Typography variant="h6" gutterBottom>
+    //             Transaction List
+    //         </Typography>
+
+    //         <List dense>
+    //             {transactions.map((transaction) => (
+    //                 <ListItem key={transaction.id} divider>
+    //                     <ListItemText
+    //                         primary={[`Transaction ID: ${transaction.id}`, `, Amount: ${transaction.amount}`]}
+    //                         secondary={[`Account ID: ${transaction.account_id}`, `, Category: ${transaction.category}, Time: ${transaction.time_of_transaction}`]}
+
+    //                     />
+    //                 </ListItem>
+    //             ))}
+    //         </List>
+    //     </Box>
+    // );
+    if (loading) {
+        return (
+            <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+                <CircularProgress />
+            </Box>
+        );
+    }
 
     return (
-        <section className="transactions">
-            <header>
-                <h2>Transaction List</h2>
-            </header>
-            <ul>
-                {transactions.map((transaction) => (
-                    <li key={transaction.id} className="transaction-item">
-                        <span className="transaction-detail">ID: {transaction.id}</span>
-                        <span className="transaction-detail">Account ID: {transaction.account_id}</span>
-                        {/* Other transaction details */}
-                    </li> 
-                ))}
-            </ul>
-        </section>
+        <Box 
+            display="flex" 
+            flexWrap="wrap" 
+            justifyContent="center" 
+            alignItems="flex-start" 
+            gap={2} // Dies erzeugt einen Abstand zwischen den Boxen
+            p={2}
+        >
+            {transactions.map((transaction) => (
+                <Card key={transaction.id} sx={{ minWidth: 275, maxWidth: 'calc(50% - 16px)' }}>
+                    <CardContent>
+                        <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
+                            Transaction ID: {transaction.id}
+                        </Typography>
+                        <Typography variant="h5" component="div">
+                            ${transaction.amount} {/* Angenommen, Sie haben einen Betrag */}
+                        </Typography>
+                        <Typography sx={{ mb: 1.5 }} color="text.secondary">
+                            Account ID: {transaction.account_id}
+                        </Typography>
+                        {/* Weitere Details hier */}
+                    </CardContent>
+                </Card>
+            ))}
+        </Box>
     );
-
-
 };
 
 export default Transactions;
