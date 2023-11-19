@@ -208,11 +208,19 @@ const BudgetBooks = () => {
                                 </ListItem>
                             </Box> 
 
-                            {plotsData[budgetBook.id] && (
+                            {/* {plotsData[budgetBook.id] && (
                                 <Plot 
                                 data={plotsData[budgetBook.id].data}
                                 layout={plotsData[budgetBook.id].layout} 
                                 />
+                            )} */}
+                            {plotsData[budgetBook.id] && (
+                                <Box display="flex" justifyContent="center" alignItems="center">
+                                    <Plot 
+                                        data={plotsData[budgetBook.id].data}
+                                        layout={plotsData[budgetBook.id].layout} 
+                                    />
+                                </Box>
                             )}
                         </Box> 
 
