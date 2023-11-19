@@ -1,6 +1,8 @@
 import { useAuth } from './AuthContext';
 import React, { useState, useEffect } from 'react';
 import Transactions from './Transactions';
+import Plot from 'react-plotly.js';
+
 // import List from '@mui/material/List';
 // import ListItem from '@mui/material/ListItem';
 // import ListItemText from '@mui/material/ListItemText';
@@ -17,11 +19,44 @@ const BudgetBooks = () => {
     const [budgetBooks, setBudgetBooks] = useState([]);
     const [loading, setLoading] = useState(true); 
     const [selectedBudgetBook, setSelectedBudgetBook] = useState('');
+    const [plotData, setPlotData] = useState([]);
+    const [plotsData, setPlotsData] = useState({});
 
     const handleSelectChange = (e) => {
         setSelectedBudgetBook(e.target.value);
     };
 
+    const getPlotForBudgetBook = async (bbId) => {
+        const jwt_token = localStorage.getItem('userToken');
+
+        const resp2 = await fetch('http://127.0.0.1:5000/plot', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${jwt_token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ budgetbook_id: bbId })
+        });
+        const respj = await resp2.json();
+        console.log(respj)
+        return JSON.parse(respj.graphJSON); 
+    };
+    const getPlotForBudgetBook2 = async (bbId) => {
+        const jwt_token = localStorage.getItem('userToken');
+
+        const resp2 = await fetch('http://127.0.0.1:5000/plot2', {
+            method: 'POST',
+
+            headers: {
+                'Authorization': `Bearer ${jwt_token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ budgetbook_id: bbId })
+        });
+        const respj = await response.json();
+        console.log(respj)
+        return bbId
+    };
     const handleButtonClick = () => {
         // const selectedBook = budgetBooks.find(book => book.id === selectedBudgetBook);
         console.log('Selected Budget Book id:', selectedBudgetBook || 'None selected');
@@ -45,16 +80,37 @@ const BudgetBooks = () => {
                 // console.log('Budget Books response.text:', response.text());
 
                 setBudgetBooks(data);
+
+                // 
+
+                const plotsPromises = data.map(book => getPlotForBudgetBook(book.id));
+                const plotsResults = await Promise.all(plotsPromises);
+
+                // const plotsPromises = budgetBooks.map(book => getPlotForBudgetBook(book.id));
+                // const plotsResults = await Promise.all(plotsPromises);
+
+                // Process and store plot data
+                const newPlotsData = {};
+                plotsResults.forEach((plot, index) => {
+                    const bookId =data[index].id;
+                    newPlotsData[bookId] = plot;
+                });
+                setPlotsData(newPlotsData);
+                console.log('newplotsdata', newPlotsData)
                 setLoading(false); // Set loading to false
+
 
             } catch (error) {
                 console.error('Error fetching data from backend:', error);
                 setLoading(false); // Set loading to false on error
 
             }
+
+
         };
 
         fetchBudgetBooks(); 
+    
     }, []);
     
 
@@ -136,7 +192,7 @@ const BudgetBooks = () => {
             </Typography>
 
             <List>
-                {budgetBooks.map((budgetBook) => (
+                {budgetBooks.map( (budgetBook) => (
                     <React.Fragment key={budgetBook.id}>
                         <ListItem>
                             <ListItemText
@@ -145,6 +201,12 @@ const BudgetBooks = () => {
                             />
                             <Transactions bbId={budgetBook.id} />
                         </ListItem>
+                        {plotsData[budgetBook.id] && (
+                            <Plot 
+                            data={plotsData[budgetBook.id].data}
+                            layout={plotsData[budgetBook.id].layout} 
+                            />
+                        )}
                     </React.Fragment>
                 ))}
             </List>

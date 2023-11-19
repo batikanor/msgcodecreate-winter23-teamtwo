@@ -5,7 +5,7 @@ import random
 from flask_jwt_extended import JWTManager, create_access_token, get_jwt_identity, jwt_required
 from dotenv import load_dotenv
 import os
-from plot import plot_pie_chart_for_budgetbook_by_category
+from plot import plot_pie_chart_for_budgetbook_by_category, plot_pie_chart_for_budgetbook_by_category2
 from datetime import timedelta
 
 
@@ -355,13 +355,22 @@ def delete_account_from_user():
     account.delete()
     return 200
 
-@app.route('/plot', methods=['GET']) 
+@app.route('/plot', methods=['POST']) 
 @jwt_required()
 def get_plot_of_expenses_per_category_for_budgetbook():
     user_id = get_jwt_identity()
     data = request.get_json()
     budgetbook_id = data['budgetbook_id']
-    return plot_pie_chart_for_budgetbook_by_category(budgetbook_id, user_id), 200
+    return jsonify(graphJSON=plot_pie_chart_for_budgetbook_by_category(budgetbook_id, user_id))
+
+@app.route('/plot2', methods=['POST']) 
+@jwt_required()
+def get_plot_of_expenses_per_category_for_budgetbook2():
+    user_id = get_jwt_identity()
+    data = request.get_json()
+    budgetbook_id = data['budgetbook_id']
+    return jsonify({"status":plot_pie_chart_for_budgetbook_by_category2(budgetbook_id, os.path.join("plots", "pie_charts"))})
+
 
 
 @app.route('/test', methods=['GET'])

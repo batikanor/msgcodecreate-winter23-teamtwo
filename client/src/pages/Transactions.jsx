@@ -7,7 +7,9 @@ const Transactions = ({ bbId }) => {
     const { isAuthenticated, setIsAuthenticated } = useAuth();
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(true); 
-    const [newTransactionAmount, setnewTransactionAmount] = useState(''); 
+    const [newTransactionAmount, setNewTransactionAmount] = useState(''); 
+    const [newTransactionCategory, setNewTransactionCategory] = useState(''); 
+
 
     useEffect(() => {
         const fetchTransactions = async () => {
@@ -51,10 +53,12 @@ const Transactions = ({ bbId }) => {
         fetchTransactions(); 
     }, [bbId,  refresh]); // Add bbId as a dependency to useEffect
 
-    const handleInputChange = (e) => {
-        setnewTransactionAmount(e.target.value);
+    const handleTransactionAmountInputChange = (e) => {
+        setNewTransactionAmount(e.target.value);
     };
-
+    const handleTransactionCategoryInputChange = (e) => {
+        setNewTransactionCategory(e.target.value);
+    };
     const handleButtonClick = async () => {
         // const selectedBook = budgetBooks.find(book => book.id === selectedBudgetBook);
         // console.log('Selected Budget Book id:', selectedBudgetBook || 'None selected');
@@ -66,7 +70,7 @@ const Transactions = ({ bbId }) => {
               'Authorization': `Bearer ${jwt_token}`,
               'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ budgetbook_id: bbId, category:"category", comment: "com", account_id: "1", amount: newTransactionAmount })
+            body: JSON.stringify({ budgetbook_id: bbId, category: newTransactionCategory, comment: "com", account_id: "1", amount: newTransactionAmount })
         });
         console.log(await response.ok)
         if (response.ok){
@@ -175,19 +179,39 @@ const Transactions = ({ bbId }) => {
                         <Typography sx={{ mb: 1.5 }} color="text.secondary">
                             Time: {transaction.time_of_transaction}
                         </Typography>
+                        <Typography sx={{ mb: 1.5 }} color="text.secondary">
+                            Category: {transaction.category}
+                        </Typography>
                     </CardContent>
                 </Card>
             ))}
-        </Box><Box component="div">
-                <TextField
-                    label="Enter the transaction amount"
-                    variant="outlined"
-                    value={newTransactionAmount}
-                    onChange={handleInputChange} />
-                <Button variant="contained" color="primary" onClick={handleButtonClick}>
-                    Add new transaction
-                </Button>
-        </Box></>
+        </Box>
+        <Box 
+            component="div"
+            display="flex" 
+            flexDirection="column"  // Set the direction to column
+            justifyContent="center" 
+            alignItems="center"
+            gap={2} // Add a gap between items for better spacing
+        >
+            <TextField
+                label="Enter the transaction amount"
+                variant="outlined"
+                value={newTransactionAmount}
+                onChange={handleTransactionAmountInputChange}
+            />
+            <TextField
+                label="Enter the transaction category"
+                variant="outlined"
+                value={newTransactionCategory}
+                onChange={handleTransactionCategoryInputChange}
+            />
+            <Button variant="contained" color="primary" onClick={handleButtonClick}>
+                Add new transaction
+            </Button>
+        </Box>
+        
+        </>
     );
     
 };
