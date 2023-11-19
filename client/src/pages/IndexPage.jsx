@@ -52,10 +52,10 @@ function IndexPage() {
             {/* <div>
               <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
             </div> */}
-            <button onClick={handleLogout}>Logout</button>
+            <button onClick={handleLogout}>Click here to logout</button>
             
-            <p>Thank you for logging in.</p>
-            <p>Please find your current budget books below.</p>
+            {/* <p>Thank you for logging in.</p> */}
+            {/* <p>Please find your current budget books below.</p> */}
             {isDataLoaded && <BudgetBooks />}
             <p>Click the button below if you want to add a new budget book.</p>
             <input

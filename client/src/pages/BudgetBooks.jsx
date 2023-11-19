@@ -41,22 +41,22 @@ const BudgetBooks = () => {
         console.log(respj)
         return JSON.parse(respj.graphJSON); 
     };
-    const getPlotForBudgetBook2 = async (bbId) => {
-        const jwt_token = localStorage.getItem('userToken');
+    // const getPlotForBudgetBook2 = async (bbId) => {
+    //     const jwt_token = localStorage.getItem('userToken');
 
-        const resp2 = await fetch('http://127.0.0.1:5000/plot2', {
-            method: 'POST',
+    //     const resp2 = await fetch('http://127.0.0.1:5000/plot2', {
+    //         method: 'POST',
 
-            headers: {
-                'Authorization': `Bearer ${jwt_token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ budgetbook_id: bbId })
-        });
-        const respj = await response.json();
-        console.log(respj)
-        return bbId
-    };
+    //         headers: {
+    //             'Authorization': `Bearer ${jwt_token}`,
+    //             'Content-Type': 'application/json'
+    //         },
+    //         body: JSON.stringify({ budgetbook_id: bbId })
+    //     });
+    //     const respj = await response.json();
+    //     console.log(respj)
+    //     return bbId
+    // };
     const handleButtonClick = () => {
         // const selectedBook = budgetBooks.find(book => book.id === selectedBudgetBook);
         console.log('Selected Budget Book id:', selectedBudgetBook || 'None selected');
