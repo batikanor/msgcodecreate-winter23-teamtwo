@@ -161,7 +161,7 @@ const BudgetBooks = () => {
             >
                 {budgetBooks.map((book) => (
                     <MenuItem key={book.id} value={book.id}>
-                        {book.name}
+                        {book.id}: {book.name}
                     </MenuItem>
                 ))}
             </TextField>

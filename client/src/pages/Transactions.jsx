@@ -124,7 +124,11 @@ const Transactions = ({ bbId }) => {
             p={2}
         >
             {transactions.map((transaction) => (
-                <Card key={transaction.id} sx={{ minWidth: 275, maxWidth: 'calc(50% - 16px)' }}>
+                <Card key={transaction.id} sx={{
+                     minWidth: 275, 
+                     maxWidth: 'calc(50% - 16px)',
+                     backgroundColor: transaction.amount < 0 ? 'magenta' : 'gray', // Conditional color based on amount
+                     }}>
                     <CardContent>
                         <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
                             Transaction ID: {transaction.id}
@@ -135,12 +139,15 @@ const Transactions = ({ bbId }) => {
                         <Typography sx={{ mb: 1.5 }} color="text.secondary">
                             Account ID: {transaction.account_id}
                         </Typography>
-                        {/* Weitere Details hier */}
+                        <Typography sx={{ mb: 1.5 }} color="text.secondary">
+                            Time: {transaction.time_of_transaction}
+                        </Typography>
                     </CardContent>
                 </Card>
             ))}
         </Box>
     );
+    
 };
 
 export default Transactions;
