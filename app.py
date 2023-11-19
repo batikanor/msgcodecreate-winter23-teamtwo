@@ -254,7 +254,7 @@ def delete_budgetplan_from_budgetbook():
     if not check_admin_privileges(data['budgetbook_id'], user_id):
         return jsonify({'message': 'Access Denied'}), 401
     
-    budgetplan = db.session.query(Budgetplan).filter(Budgetplan.id==data['budgetplan_id'])
+    budgetplan = db.session.query(Budgetplan).filter(Budgetplan.id==data['budgetplan_id']).first()
     if not budgetplan:
         return jsonify({'message': "budgetplan doesn't exist"})
     budgetplan.dekete()
@@ -329,7 +329,7 @@ def delete_account_from_user():
     user_id = get_jwt_identity()
     data = request.get_json()
 
-    account = db.session.query(Account).filter(Account.id==data['account_id'])
+    account = db.session.query(Account).filter(Account.id==data['account_id']).first()
     if not account:
         return jsonify({'message': "Account doesn't exist"}), 400
     account.delete()
