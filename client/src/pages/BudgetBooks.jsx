@@ -198,7 +198,7 @@ const BudgetBooks = () => {
                 {budgetBooks.map( (budgetBook) => (
                     <React.Fragment key={budgetBook.id}>
                         <Box bgcolor="white"> 
-                            <Box bgcolor="pink"> 
+                            <Box bgcolor="lightgray"> 
                                 <ListItem>
                                     <ListItemText
                                         primary={`Budget Book Name: ${budgetBook.name}`}
